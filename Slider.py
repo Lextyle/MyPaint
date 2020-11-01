@@ -14,8 +14,9 @@ class Slider():
 		self.value = 0
 	def update(self, event, toolbar_x):
 		if event.type == MOUSEBUTTONDOWN:
-			if event.pos[0] - toolbar_x in range(self.x, self.x + self.width + 1) and event.pos[1] - 75 in range(self.circle_y - self.circle_radius, self.circle_y + self.circle_radius + 1):
-				self.change_value = True
+			if event.button == 1:
+				if event.pos[0] - toolbar_x in range(self.x, self.x + self.width + 1) and event.pos[1] - 75 in range(self.circle_y - self.circle_radius, self.circle_y + self.circle_radius + 1):
+					self.change_value = True
 		if event.type == MOUSEBUTTONUP:
 			self.change_value = False
 		if event.type == MOUSEMOTION:

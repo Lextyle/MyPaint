@@ -1,8 +1,8 @@
 import pygame
-from pyautogui import size
+from pyautogui import size, screenshot
 from Button import *
 from Slider import *
-from Circle import *
+from Rect import *
 from Line import *
 from EntryField import *
 from Image import *
@@ -98,9 +98,8 @@ canvas = pygame.Surface((window_width - toolbar_width, toolbar_height))
 brush_size = 10
 color = [0, 0, 0]
 draw = False
-circles = []
-lines = []
-last_circles_num = 0
+rects = []
+last_rects_num = 0
 font = pygame.font.Font("SFPixelate.ttf", 20)
 save_button_image = pygame.image.load(r"images\save_button_image.png")
 load_button_image = pygame.image.load(r"images\load_button_image.png")
@@ -108,7 +107,7 @@ r_slider = Slider((toolbar_width // 2 - 255 // 2), 40, 255, (200, 40, 40))
 g_slider = Slider((toolbar_width // 2 - 255 // 2), r_slider.circle_y + r_slider.circle_radius + 10, 255, (40, 200, 40))
 b_slider = Slider((toolbar_width // 2 - 255 // 2), g_slider.circle_y + g_slider.circle_radius + 10, 255, (40, 40, 200))
 brush_size_slider = Slider((toolbar_width // 2 - 100 // 2), ((b_slider.circle_y +  b_slider.circle_radius + 10) + font.render(f"{color}", True, (255, 255, 255)).get_height() + 60) + font.render(f"Brush Size", True, (255, 255, 255)).get_height() + 5, 100, (150, 150, 150))
-all_versions_of_canvas = [[circles.copy(), lines.copy()]]
+all_versions_of_canvas = [rects.copy()]
 save_button = Button(0, 75 - save_button_image.get_height(), save_button_image, save_button_image, 0, 0)
 load_button = Button(save_button_image.get_width() + 10, 75 - load_button_image.get_height(), load_button_image, load_button_image, 0, 0)
 # GAME LOOP
@@ -121,23 +120,29 @@ while True:
 		if event.type == pygame.KEYDOWN:
 			if event.key == pygame.K_z:
 				if len(all_versions_of_canvas) > 1:
-					circles = all_versions_of_canvas[-1][0]
-					lines = all_versions_of_canvas[-1][1]
+					rects = all_versions_of_canvas[-1]
 					all_versions_of_canvas = all_versions_of_canvas[0:-1]
 		if event.type == pygame.MOUSEBUTTONDOWN:
 			if event.button == 1:
 				if event.pos[0] in range(canvas_x, canvas_x + canvas.get_width()) and event.pos[1] in range(canvas_y, canvas_y + canvas.get_height()):
 					draw = True
-					all_versions_of_canvas.append([circles.copy(), lines.copy()])
+					all_versions_of_canvas.append(rects.copy())
+			if event.button == 2:
+				screenshot_image = screenshot()
+				color = screenshot_image.getpixel(event.pos)
+				r_slider.circle_x = color[0] + r_slider.x
+				g_slider.circle_x = color[1] + r_slider.x
+				b_slider.circle_x = color[2] + r_slider.x
+				r_slider.value = color[0]
+				g_slider.value = color[1]
+				b_slider.value = color[2]
 		if event.type == pygame.MOUSEBUTTONUP:
 			draw = False
-			last_circles_num = 0
+			last_rects_num = 0
 		if event.type == pygame.MOUSEMOTION:
 			if draw:
-				circles.append(Circle(event.pos[0] - canvas_x, event.pos[1] - canvas_y, brush_size, color))
-				if last_circles_num > 1:
-					lines.append(Line(circles[-2].x, circles[-2].y, circles[-1].x, circles[-1].y, color, brush_size * 2))
-				last_circles_num += 1
+				rects.append(Rect((event.pos[0] - canvas_x) - (event.pos[0] - canvas_x) % brush_size, (event.pos[1] - canvas_y) - (event.pos[1] - canvas_y) % brush_size, brush_size, color))
+				last_rects_num += 1
 		r_slider.update(event, canvas_x + canvas.get_width())
 		g_slider.update(event, canvas_x + canvas.get_width())
 		b_slider.update(event, canvas_x + canvas.get_width())
@@ -149,10 +154,8 @@ while True:
 	color = [r_slider.value, g_slider.value, b_slider.value]
 	brush_size = brush_size_slider.value + 10
 	# DRAW
-	for circle in circles:
-		circle.draw(canvas)
-	for line in lines:
-		line.draw(canvas)
+	for rect in rects:
+		rect.draw(canvas)
 	rgb_color_render = font.render(f"{color}", True, (255, 255, 255))
 	r_slider.draw(toolbar)
 	g_slider.draw(toolbar)
@@ -163,7 +166,7 @@ while True:
 	pygame.draw.rect(toolbar, (0, 0, 0), (toolbar_width // 2 - 40 // 2, (b_slider.circle_y +  b_slider.circle_radius + 10) + rgb_color_render.get_height() + 10, 40, 40), 5)
 	toolbar.blit(font.render(f"Colors", True, (255, 255, 255)), (toolbar_width // 2 - font.render(f"Colors", True, (255, 255, 255)).get_width() // 2, r_slider.circle_y - r_slider.circle_radius - font.render(f"Colors", True, (255, 255, 255)).get_height()))
 	toolbar.blit(font.render(f"Brush Size", True, (255, 255, 255)), (toolbar_width // 2 - font.render(f"Brush Size", True, (255, 255, 255)).get_width() // 2, (b_slider.circle_y +  b_slider.circle_radius + 10) + rgb_color_render.get_height() + 60))
-	pygame.draw.circle(toolbar, (0, 0, 0), (toolbar_width // 2, brush_size_slider.circle_y + brush_size_slider.circle_radius + 120), brush_size)
+	pygame.draw.rect(toolbar, (0, 0, 0), (toolbar_width // 2 - brush_size // 2, (brush_size_slider.circle_y + brush_size_slider.circle_radius + 120) - brush_size // 2, brush_size, brush_size))
 	window.blit(canvas, (canvas_x, canvas_y))
 	window.blit(toolbar, (canvas_x + canvas.get_width(), canvas_y))
 	save_or_not = save_button.pressed
@@ -175,6 +178,5 @@ while True:
 	if load_or_not:
 		image = load()
 		if image != "DON'T LOAD":
-			circles = [Image(0, 0, image)]
-			lines = []
+			rects = [Image(0, 0, image)]
 	pygame.display.flip()
