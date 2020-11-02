@@ -20,26 +20,38 @@ def load():
 	black_surface.fill((0, 0, 0))
 	black_surface.set_alpha(150)
 	window.blit(black_surface, (0, 0))
-	max_size = [500, 250]
+	max_size = [1111, 515]
 	size = [0, 0]
-	font = pygame.font.Font("SFPixelate.ttf", 20)
+	font = pygame.font.Font("SFPixelate.ttf", 15)
 	buttons = []
 	filenames = listdir("Pictures")
-	image_width = round((max_size[0] - 10 * 6) / 5)
-	letter_example = font.render("Q", True, (0, 0, 0))
+	image_width = round((max_size[0] - 20 * 11) / 10)
+	letter_example = font.render("f", True, (0, 0, 0))
 	image_height = 50
-	x = 10
-	y = 0
+	spaces = [[]]
+	x = 20
+	y = 10
 	for filename in filenames:
 		if filename[-4:len(filename)] == ".png" or filename[-4:len(filename)] == ".jpg":
 			image = pygame.transform.scale(pygame.image.load(f"Pictures\{filename}"), (image_width, image_height))
-			buttons.append([pygame.image.load(f"Pictures\{filename}"), font.render(filename, True, (0, 0, 0)), pygame.Surface((image_width, image_height)), (x, y), Button(0, 0, image, image, (window_width // 2 - max_size[0] // 2) + x, (window_height // 2 - max_size[1] // 2) + y)])
-			if buttons[-1][1].get_width() > image_width:
-				buttons[-1][1] = font.render(filename[0:image_width // letter_example.get_width() - 3] + "...", True, (0, 0, 0))
-			x += image_width + 10
+			buttons.append([pygame.image.load(f"Pictures\{filename}"), filename, pygame.Surface((image_width, image_height)), (x, y), Button(0, 0, image, image, (window_width // 2 - max_size[0] // 2) + x, (window_height // 2 - max_size[1] // 2) + y)])
+			x_var = 0
+			y_var = 0
+			buttons[-1][1] = [[""]]
+			for letter in filename:
+				text_render = font.render(letter, True, (255, 255, 255))
+				x_var += text_render.get_width()
+				if x_var > image_width:
+					y_var += text_render.get_height() + 5
+					x_var = 0
+					buttons[-1][1].append([""])
+				buttons[-1][1][-1] += letter
+			spaces[-1].append(y_var)
+			x += image_width + 20
 			if x + image_width > max_size[0]:
-				x = 10
-				y += image_height + 10
+				x = 20
+				y += image_height + max(spaces[-1]) + 20
+				spaces.append([])
 	while True:
 		surface = pygame.Surface(size)
 		surface.fill((60, 60, 60))
@@ -51,8 +63,8 @@ def load():
 			if event.type == pygame.MOUSEBUTTONDOWN:
 				if not (event.pos[0] in range(window_width // 2 - surface.get_width() // 2, (window_width // 2 - surface.get_width() // 2) + surface.get_width()) and event.pos[1] in range(window_height // 2 - surface.get_height() // 2, (window_height // 2 - surface.get_height() // 2) + surface.get_height())):
 					return "DON'T LOAD"
-		size[0] += 6
-		size[1] += 3
+		size[0] += 15
+		size[1] += 7
 		if size[0] > max_size[0]:
 			size[0] = max_size[0]
 		if size[1] > max_size[1]:
@@ -61,7 +73,14 @@ def load():
 			if button[-1].pressed:
 				return button[0]
 			button[-1].draw(button[2])
-			button[2].blit(button[1], (0, button[-1].image.get_height() // 2 - button[1].get_height() // 2))
+			y_var = button[3][1] + image_height + 1
+			for line in button[1]:
+				x_var = button[3][0] + image_width // 2 - len(line) * letter_example.get_width() // 2
+				for letter in line:
+					text_render = font.render(letter, True, (255, 255, 255))
+					surface.blit(text_render, (x_var, y_var))
+					x_var += text_render.get_width()
+				y_var += text_render.get_height() + 5
 			surface.blit(button[2], (button[3][0], button[3][1]))
 		window.blit(surface, (window_width // 2 - surface.get_width() // 2, window_height // 2 - surface.get_height() // 2))
 		pygame.display.flip()
