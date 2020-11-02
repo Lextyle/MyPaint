@@ -34,10 +34,9 @@ def load():
 	for filename in filenames:
 		if filename[-4:len(filename)] == ".png" or filename[-4:len(filename)] == ".jpg":
 			image = pygame.transform.scale(pygame.image.load(f"Pictures\{filename}"), (image_width, image_height))
-			buttons.append([pygame.image.load(f"Pictures\{filename}"), filename, pygame.Surface((image_width, image_height)), (x, y), Button(0, 0, image, image, (window_width // 2 - max_size[0] // 2) + x, (window_height // 2 - max_size[1] // 2) + y)])
+			buttons.append([pygame.image.load(f"Pictures\{filename}"), [[""]], pygame.Surface((image_width, image_height)), (x, y), Button(0, 0, image, image, (window_width // 2 - max_size[0] // 2) + x, (window_height // 2 - max_size[1] // 2) + y)])
 			x_var = 0
 			y_var = 0
-			buttons[-1][1] = [[""]]
 			for letter in filename:
 				text_render = font.render(letter, True, (255, 255, 255))
 				x_var += text_render.get_width()
