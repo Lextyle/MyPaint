@@ -3,7 +3,6 @@ from pyautogui import size, screenshot
 from Button import *
 from Slider import *
 from Rect import *
-from Line import *
 from EntryField import *
 from Image import *
 from os import listdir, mkdir
@@ -21,11 +20,12 @@ def load():
 	black_surface.fill((0, 0, 0))
 	black_surface.set_alpha(150)
 	window.blit(black_surface, (0, 0))
-	surface = pygame.Surface((700, 350))
+	max_size = [500, 250]
+	size = [0, 0]
 	font = pygame.font.Font("SFPixelate.ttf", 20)
 	buttons = []
 	filenames = listdir("Pictures")
-	image_width = surface.get_width() // 5
+	image_width = max_size[0] // 5
 	letter_example = font.render("Q", True, (0, 0, 0))
 	image_height = 50
 	x = 10
@@ -33,14 +33,15 @@ def load():
 	for filename in filenames:
 		if filename[-4:len(filename)] == ".png" or filename[-4:len(filename)] == ".jpg":
 			image = pygame.transform.scale(pygame.image.load(f"Pictures\{filename}"), (image_width, image_height))
-			buttons.append([pygame.image.load(f"Pictures\{filename}"), font.render(filename, True, (0, 0, 0)), pygame.Surface((image_width, image_height)), (x, y), Button(0, 0, image, image, (window_width // 2 - surface.get_width() // 2) + x, (window_height // 2 - surface.get_height() // 2) + y)])
+			buttons.append([pygame.image.load(f"Pictures\{filename}"), font.render(filename, True, (0, 0, 0)), pygame.Surface((image_width, image_height)), (x, y), Button(0, 0, image, image, (window_width // 2 - max_size[0] // 2) + x, (window_height // 2 - max_size[1] // 2) + y)])
 			if buttons[-1][1].get_width() > image_width:
 				buttons[-1][1] = font.render(filename[0:image_width // letter_example.get_width() - 3] + "...", True, (0, 0, 0))
 			x += image_width + 10
-			if x + image_width > surface.get_width():
+			if x + image_width > max_size[0]:
 				x = 10
 				y += image_height + 10
 	while True:
+		surface = pygame.Surface(size)
 		surface.fill((60, 60, 60))
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
@@ -50,6 +51,12 @@ def load():
 			if event.type == pygame.MOUSEBUTTONDOWN:
 				if not (event.pos[0] in range(window_width // 2 - surface.get_width() // 2, (window_width // 2 - surface.get_width() // 2) + surface.get_width()) and event.pos[1] in range(window_height // 2 - surface.get_height() // 2, (window_height // 2 - surface.get_height() // 2) + surface.get_height())):
 					return "DON'T LOAD"
+		size[0] += 6
+		size[1] += 3
+		if size[0] > max_size[0]:
+			size[0] = max_size[0]
+		if size[1] > max_size[1]:
+			size[1] = max_size[1]
 		for button in buttons:
 			if button[-1].pressed:
 				return button[0]
@@ -63,14 +70,19 @@ def save(canvas):
 	black_surface.fill((0, 0, 0))
 	black_surface.set_alpha(150)
 	window.blit(black_surface, (0, 0))
-	surface = pygame.Surface((500, 250))
+	max_size = [500, 250]
+	size = [0, 0]
 	font = pygame.font.Font("SFPixelate.ttf", 50)
-	filename_entry_filed = EntryField(surface.get_width() // 2 - 250 // 2, 50, 250, 62, font, (30, 30, 30), (255, 255, 255))
+	filename_entry_filed = EntryField(max_size[0] // 2 - 250 // 2, 50, 250, 62, font, (30, 30, 30), (255, 255, 255))
 	cancel_button_image = pygame.transform.scale(pygame.image.load(r"images\cancel_button_image.png"), (pygame.image.load(r"images\cancel_button_image.png").get_width() * 2, pygame.image.load(r"images\cancel_button_image.png").get_height() * 2))
 	save_button_image = pygame.transform.scale(pygame.image.load(r"images\save_button_image.png"), (pygame.image.load(r"images\save_button_image.png").get_width() * 2, pygame.image.load(r"images\save_button_image.png").get_height() * 2))
-	cancel_button = Button(surface.get_width() // 2 + 10, filename_entry_filed.y + filename_entry_filed.surface.get_height() + 50, cancel_button_image, cancel_button_image, window_width // 2 - surface.get_width() // 2, window_height // 2 - surface.get_height() // 2)
-	save_button = Button((surface.get_width() // 2 - save_button_image.get_width()) - 10, filename_entry_filed.y + filename_entry_filed.surface.get_height() + 50, save_button_image, save_button_image, window_width // 2 - surface.get_width() // 2, window_height // 2 - surface.get_height() // 2)
+	cancel_button = Button(max_size[0] // 2 + 10, filename_entry_filed.y + filename_entry_filed.surface.get_height() + 50, cancel_button_image, cancel_button_image, window_width // 2 - max_size[0] // 2, window_height // 2 - max_size[1] // 2) 
+	save_button = Button((max_size[0] // 2 - save_button_image.get_width()) - 10, filename_entry_filed.y + filename_entry_filed.surface.get_height() + 50, save_button_image, save_button_image, window_width // 2 - max_size[0] // 2, window_height // 2 - max_size[1] // 2)
 	while True:
+		surface = pygame.Surface(size)
+		filename_entry_filed.x, filename_entry_filed.y = size[0] // 2 - 250 // 2, 50
+		cancel_button.x, cancel_button.y = size[0] // 2 + 10, filename_entry_filed.y + filename_entry_filed.surface.get_height() + 50
+		save_button.x, save_button.y = (size[0] // 2 - save_button_image.get_width()) - 10, filename_entry_filed.y + filename_entry_filed.surface.get_height() + 50
 		surface.fill((60, 60, 60))
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
@@ -84,6 +96,12 @@ def save(canvas):
 			if filename_entry_filed.text[-4:len(filename_entry_filed.text)] == ".png" or filename_entry_filed.text[-4:len(filename_entry_filed.text)] == ".jpg":
 				pygame.image.save(canvas, f"Pictures\{filename_entry_filed.text}")
 			break
+		size[0] += 6
+		size[1] += 3
+		if size[0] > max_size[0]:
+			size[0] = max_size[0]
+		if size[1] > max_size[1]:
+			size[1] = max_size[1]
 		filename_entry_filed.draw(surface)
 		cancel_button.draw(surface)
 		save_button.draw(surface)
