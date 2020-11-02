@@ -25,7 +25,7 @@ def load():
 	font = pygame.font.Font("SFPixelate.ttf", 20)
 	buttons = []
 	filenames = listdir("Pictures")
-	image_width = max_size[0] // 5
+	image_width = round((max_size[0] - 10 * 6) / 5)
 	letter_example = font.render("Q", True, (0, 0, 0))
 	image_height = 50
 	x = 10
