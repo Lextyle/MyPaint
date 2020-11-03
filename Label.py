@@ -13,9 +13,9 @@ class Label():
 			text_render = self.font.render(letter, True, (255, 255, 255))
 			width += text_render.get_width()
 			if width > self.width:
-				width = 0
+				width = text_render.get_width()
 				self.lines.append("")
-				self.height += text_render.get_height()
+				self.height += text_render.get_height() + 5
 			self.lines[-1] += letter
 	def draw(self, window):
 		if self.center == "yes":
@@ -28,4 +28,4 @@ class Label():
 				window.blit(text_render, (self.x - text_render.get_width() // 2, y))
 			else:
 				window.blit(text_render, (self.x, y))
-			y += text_render.get_height()
+			y += text_render.get_height() + 5
