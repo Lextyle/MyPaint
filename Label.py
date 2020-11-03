@@ -15,7 +15,7 @@ class Label():
 			if width > self.width:
 				width = text_render.get_width()
 				self.lines.append("")
-				self.height += text_render.get_height() + 5
+				self.height += self.font.render("f", True, (255, 56, 123)).get_height() + 5
 			self.lines[-1] += letter
 	def draw(self, window):
 		if self.center == "yes":
