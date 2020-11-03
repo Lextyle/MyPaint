@@ -5,6 +5,7 @@ from Slider import *
 from Rect import *
 from EntryField import *
 from Image import *
+from Label import *
 from os import listdir, mkdir
 try:
 	listdir("Pictures")
@@ -28,29 +29,29 @@ def load():
 	image_width = round((max_size[0] - 20 * 11) / 10)
 	letter_example = font.render("f", True, (0, 0, 0))
 	image_height = 50
-	spaces = [[]]
+	heights = [[]]
 	x = 20
 	y = 10
 	for filename in filenames:
 		if filename[-4:len(filename)] == ".png" or filename[-4:len(filename)] == ".jpg":
 			image = pygame.transform.scale(pygame.image.load(f"Pictures\{filename}"), (image_width, image_height))
-			buttons.append([pygame.image.load(f"Pictures\{filename}"), [[""]], pygame.Surface((image_width, image_height)), (x, y), Button(0, 0, image, image, (window_width // 2 - max_size[0] // 2) + x, (window_height // 2 - max_size[1] // 2) + y)])
-			x_var = 0
-			y_var = 0
-			for letter in filename:
-				text_render = font.render(letter, True, (255, 255, 255))
-				x_var += text_render.get_width()
-				if x_var > image_width:
-					y_var += text_render.get_height() + 5
-					x_var = 0
-					buttons[-1][1].append([""])
-				buttons[-1][1][-1] += letter
-			spaces[-1].append(y_var)
+			name = Label(image_width // 2, image_height + 5, image_width, filename, font, (255, 255, 255), "yes")
+			name.y += name.height // 2
+			hover_surface = pygame.Surface((image_width, image_height + 5 + name.height))
+			surface = pygame.Surface((image_width, image_height + 5 + name.height))
+			hover_surface.fill((30, 30, 30))
+			surface.fill((60, 60, 60))
+			hover_surface.blit(image, (0, 0))
+			surface.blit(image, (0, 0))
+			name.draw(surface)
+			name.draw(hover_surface)
+			buttons.append([filename, Button(x, y, surface, hover_surface, window_width // 2 - max_size[0] // 2, window_height // 2 - max_size[1] // 2)])
+			heights[-1].append(surface.get_height())
 			x += image_width + 20
 			if x + image_width > max_size[0]:
 				x = 20
-				y += image_height + max(spaces[-1]) + 20
-				spaces.append([])
+				y += max(heights[-1]) + 20
+				heights.append([])
 	while True:
 		surface = pygame.Surface(size)
 		surface.fill((60, 60, 60))
@@ -70,17 +71,8 @@ def load():
 			size[1] = max_size[1]
 		for button in buttons:
 			if button[-1].pressed:
-				return button[0]
-			button[-1].draw(button[2])
-			y_var = button[3][1] + image_height + 1
-			for line in button[1]:
-				x_var = button[3][0] + image_width // 2 - len(line) * letter_example.get_width() // 2
-				for letter in line:
-					text_render = font.render(letter, True, (255, 255, 255))
-					surface.blit(text_render, (x_var, y_var))
-					x_var += text_render.get_width()
-				y_var += text_render.get_height() + 5
-			surface.blit(button[2], (button[3][0], button[3][1]))
+				return pygame.image.load(f"Pictures\{button[0]}")
+			button[-1].draw(surface)
 		window.blit(surface, (window_width // 2 - surface.get_width() // 2, window_height // 2 - surface.get_height() // 2))
 		pygame.display.flip()
 def save(canvas):
